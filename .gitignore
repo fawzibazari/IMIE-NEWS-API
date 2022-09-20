@@ -7,12 +7,4 @@
 /public/bundles/
 /var/
 /vendor/
-/config/
-.env
 ###< symfony/framework-bundle ###
-
-symfony.lock
-
-bin/console
-
-composer.lock
