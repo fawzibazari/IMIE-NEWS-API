@@ -3,12 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\PostRepository;
-use ApiPlatform\Metadata\ApiResource;
-use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
-#[ApiResource()]
 class Post
 {
     #[ORM\Id]
@@ -19,13 +19,13 @@ class Post
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    #[ORM\Column(type: Types::TEXT)]
+    #[ORM\Column(length: 255)]
     private ?string $content = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $image_url = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $alias = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -37,19 +37,19 @@ class Post
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $deleted_at = null;
 
-    #[ORM\OneToMany(mappedBy: 'articles', targetEntity: User::class)]
-    private Collection $users;
-
     #[ORM\ManyToOne(inversedBy: 'posts')]
-    private ?comment $comments = null;
+    private ?User $users = null;
 
-    #[ORM\ManyToMany(targetEntity: categorie::class, inversedBy: 'posts')]
+    #[ORM\ManyToMany(targetEntity: Categorie::class, inversedBy: 'posts')]
     private Collection $categories;
+
+    #[ORM\OneToMany(mappedBy: 'posts', targetEntity: Comment::class)]
+    private Collection $comments;
 
     public function __construct()
     {
-        $this->users = new ArrayCollection();
         $this->categories = new ArrayCollection();
+        $this->comments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -86,7 +86,7 @@ class Post
         return $this->image_url;
     }
 
-    public function setImageUrl(string $image_url): self
+    public function setImageUrl(?string $image_url): self
     {
         $this->image_url = $image_url;
 
@@ -98,7 +98,7 @@ class Post
         return $this->alias;
     }
 
-    public function setAlias(string $alias): self
+    public function setAlias(?string $alias): self
     {
         $this->alias = $alias;
 
@@ -141,57 +141,27 @@ class Post
         return $this;
     }
 
-    /**
-     * @return Collection<int, User>
-     */
-    public function getUsers(): Collection
+    public function getUsers(): ?User
     {
         return $this->users;
     }
 
-    public function addUser(User $user): self
+    public function setUsers(?User $users): self
     {
-        if (!$this->users->contains($user)) {
-            $this->users->add($user);
-            $user->setArticles($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUser(User $user): self
-    {
-        if ($this->users->removeElement($user)) {
-            // set the owning side to null (unless already changed)
-            if ($user->getArticles() === $this) {
-                $user->setArticles(null);
-            }
-        }
-
-        return $this;
-    }
-
-    public function getComments(): ?comment
-    {
-        return $this->comments;
-    }
-
-    public function setComments(?comment $comments): self
-    {
-        $this->comments = $comments;
+        $this->users = $users;
 
         return $this;
     }
 
     /**
-     * @return Collection<int, categorie>
+     * @return Collection<int, Categorie>
      */
     public function getCategories(): Collection
     {
         return $this->categories;
     }
 
-    public function addCategory(categorie $category): self
+    public function addCategory(Categorie $category): self
     {
         if (!$this->categories->contains($category)) {
             $this->categories->add($category);
@@ -200,9 +170,39 @@ class Post
         return $this;
     }
 
-    public function removeCategory(categorie $category): self
+    public function removeCategory(Categorie $category): self
     {
         $this->categories->removeElement($category);
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getComments(): Collection
+    {
+        return $this->comments;
+    }
+
+    public function addComment(Comment $comment): self
+    {
+        if (!$this->comments->contains($comment)) {
+            $this->comments->add($comment);
+            $comment->setPosts($this);
+        }
+
+        return $this;
+    }
+
+    public function removeComment(Comment $comment): self
+    {
+        if ($this->comments->removeElement($comment)) {
+            // set the owning side to null (unless already changed)
+            if ($comment->getPosts() === $this) {
+                $comment->setPosts(null);
+            }
+        }
 
         return $this;
     }
