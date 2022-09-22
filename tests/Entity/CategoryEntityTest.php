@@ -27,7 +27,7 @@ class CategoryEntityTest extends KernelTestCase
         $categorie
             ->setName("Politique");
 
-        $this->getValidationErrors($categorie, 0);
+        $this->assertEquals('Politique', $categorie->getName());
     }
 
     public function getValidationErrors(Categorie $categorie, int $numberOfExpectedErrors): ConstraintViolationList

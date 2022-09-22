@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -11,6 +12,7 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
+#[ApiResource]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -36,11 +38,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(mappedBy: 'users', targetEntity: Comment::class)]
     private Collection $comments;
 
+    #[ORM\Column(length: 255)]
+    private ?string $user_name = null;
+
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $first_name = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $last_name = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $image_url = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $created_at = null;
@@ -187,6 +195,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getUserName(): ?string
+    {
+        return $this->user_name;
+    }
+
+    public function setUserName(string $user_name): self
+    {
+        $this->user_name = $user_name;
+
+        return $this;
+    }
+
     public function getFirstName(): ?string
     {
         return $this->first_name;
@@ -207,6 +227,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLastName(?string $last_name): self
     {
         $this->last_name = $last_name;
+
+        return $this;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        return $this->image_url;
+    }
+
+    public function setImageUrl(?string $image_url): self
+    {
+        $this->image_url = $image_url;
 
         return $this;
     }
@@ -245,5 +277,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->deleted_at = $deleted_at;
 
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    #[ORM\PreUpdate]
+    public function prePersist(){
+        if(empty($this->createdAt)){
+            $this->createdAt = new \DateTime();
+        }
     }
 }

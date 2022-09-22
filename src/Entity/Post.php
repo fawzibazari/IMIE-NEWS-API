@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
 use App\Repository\PostRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -9,6 +10,7 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PostRepository::class)]
+#[ApiResource()]
 class Post
 {
     #[ORM\Id]
@@ -37,14 +39,15 @@ class Post
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $deleted_at = null;
 
-    #[ORM\ManyToOne(inversedBy: 'posts')]
-    private ?User $users = null;
 
     #[ORM\ManyToMany(targetEntity: Categorie::class, inversedBy: 'posts')]
     private Collection $categories;
 
     #[ORM\OneToMany(mappedBy: 'posts', targetEntity: Comment::class)]
     private Collection $comments;
+
+    #[ORM\ManyToOne(inversedBy: 'posts')]
+    private ?User $users = null;
 
     public function __construct()
     {
@@ -141,18 +144,6 @@ class Post
         return $this;
     }
 
-    public function getUsers(): ?User
-    {
-        return $this->users;
-    }
-
-    public function setUsers(?User $users): self
-    {
-        $this->users = $users;
-
-        return $this;
-    }
-
     /**
      * @return Collection<int, Categorie>
      */
@@ -203,6 +194,18 @@ class Post
                 $comment->setPosts(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUsers(): ?User
+    {
+        return $this->users;
+    }
+
+    public function setUsers(?User $users): self
+    {
+        $this->users = $users;
 
         return $this;
     }
