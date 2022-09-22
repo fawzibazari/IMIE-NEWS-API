@@ -49,6 +49,7 @@ class Post
     #[ORM\ManyToOne(inversedBy: 'posts')]
     private ?User $users = null;
 
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
@@ -209,4 +210,5 @@ class Post
 
         return $this;
     }
+
 }

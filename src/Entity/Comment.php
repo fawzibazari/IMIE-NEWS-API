@@ -23,7 +23,7 @@ class Comment
     private ?Post $posts = null;
 
     #[ORM\ManyToOne(inversedBy: 'comments')]
-    private ?User $users = null;
+    private ?user $users = null;
 
     public function getId(): ?int
     {
@@ -54,12 +54,12 @@ class Comment
         return $this;
     }
 
-    public function getUsers(): ?User
+    public function getUsers(): ?user
     {
         return $this->users;
     }
 
-    public function setUsers(?User $users): self
+    public function setUsers(?user $users): self
     {
         $this->users = $users;
 
